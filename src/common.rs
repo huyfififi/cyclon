@@ -31,3 +31,13 @@ pub fn filter_python_files(paths: &Vec<String>) -> Vec<String> {
     }
     python_paths
 }
+
+pub fn read_lines(filename: String) -> Vec<String> {
+    let mut result = Vec::new();
+
+    for line in fs::read_to_string(filename).unwrap().lines() {
+        result.push(line.trim().to_string());
+    }
+
+    result
+}

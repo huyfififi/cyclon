@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::fs::read_to_string;
 use std::io;
 use std::path::Path;
 
@@ -12,16 +11,7 @@ use cyclomatic_complexity::print_result;
 mod common;
 use common::filter_python_files;
 use common::get_all_paths_in_directory;
-
-fn read_lines(filename: String) -> Vec<String> {
-    let mut result = Vec::new();
-
-    for line in read_to_string(filename).unwrap().lines() {
-        result.push(line.trim().to_string());
-    }
-
-    result
-}
+use common::read_lines;
 
 #[derive(Parser)]
 #[command(name = "Cyclon")]
