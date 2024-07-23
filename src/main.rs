@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs::read_to_string;
 use std::path::Path;
 
@@ -32,7 +33,16 @@ struct Args {
 fn main() {
     let path: String = Args::parse().path;
     let base_path = Path::new(&path);
-    let contents: Vec<String> = read_lines(path.clone());
-    let result: HashMap<&str, u8> = count(&contents);
-    print_result(base_path, &result);
+    if base_path.is_file() {
+        let contents: Vec<String> = read_lines(path.clone());
+        let result: HashMap<&str, u8> = count(&contents);
+        print_result(
+            base_path
+                .file_name()
+                .unwrap_or(OsStr::new("invalid path"))
+                .to_str()
+                .unwrap_or("invalid str"),
+            &result,
+        );
+    }
 }

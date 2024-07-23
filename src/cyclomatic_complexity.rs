@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::path::Path;
 
 static PYTHON_KEYWORDS: &[&str] = &["if ", "for "];
 
@@ -46,8 +45,8 @@ pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
     result
 }
 
-pub fn print_result(path: &Path, result: &HashMap<&str, u8>) {
-    println!("{}", path.display());
+pub fn print_result(path: &str, result: &HashMap<&str, u8>) {
+    println!("{}", path);
     for (func_name, complexity) in result.into_iter() {
         println!("{}\t{}", complexity, func_name);
     }
