@@ -10,7 +10,7 @@ fn read_lines(filename: String) -> Vec<String> {
     let mut result = Vec::new();
 
     for line in read_to_string(filename).unwrap().lines() {
-        result.push(line.to_string());
+        result.push(line.trim().to_string());
     }
 
     result
@@ -28,9 +28,9 @@ struct Args {
 
 fn main() {
     let path: String = Args::parse().path;
-    let contents: Vec<String> = read_lines(path);
-    let results: HashMap<String, u8> = count(&contents);
+    let contents: Vec<String> = read_lines(path.clone());
+    let results: HashMap<&str, u8> = count(&contents);
     for (function, complexity) in results.into_iter() {
-        println!("{}, {}", function, complexity)
+        println!("{}, {}, {}", complexity, function, path)
     }
 }

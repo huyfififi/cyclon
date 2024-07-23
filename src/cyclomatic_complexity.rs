@@ -1,9 +1,46 @@
 use std::collections::HashMap;
 
-pub fn count(contents: &Vec<String>) -> HashMap<String, u8> {
+static PYTHON_KEYWORDS: &[&str] = &["if ", "for "];
+
+fn extract_function_name(func: &String) -> &str {
+    let v: Vec<&str> = func.split("(").collect();
+    return v[0];
+}
+
+// nested functions will break this logic
+// only top-level functions are supported
+pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
     let mut result = HashMap::new();
+    let mut curr_func: &str = "";
+    let mut curr_comp: u8 = 0;
+
     for line in contents {
-        result.insert(line.clone(), 1);
+        // TODO: Skip comments
+
+        if line.contains(&"def ") {
+            println!("{}", line);
+            if curr_func != "" {
+                result.insert(curr_func, curr_comp);
+            }
+            let extracted = extract_function_name(&line);
+            if extracted != "" {
+                curr_func = extracted;
+                curr_comp = 0;
+            }
+            continue;
+        }
+
+        for keyword in PYTHON_KEYWORDS {
+            if line.contains(keyword) {
+                curr_comp += 1;
+                continue;
+            }
+        }
+    }
+
+    // TODO: Extract the common operation
+    if curr_func != "" {
+        result.insert(curr_func, curr_comp);
     }
 
     result
