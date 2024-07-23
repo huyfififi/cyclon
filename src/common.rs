@@ -41,3 +41,48 @@ pub fn read_lines(filename: String) -> Vec<String> {
 
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_filter_python_files() {
+        let paths: Vec<String> = vec![
+            "script.py".to_string(),
+            "README.md".to_string(),
+            "module.rs".to_string(),
+            "test.py".to_string(),
+        ];
+        let expected: Vec<String> = vec![
+            "script.py".to_string(),
+            "test.py".to_string(),
+        ];
+        let result: Vec<String> = filter_python_files(&paths);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_filter_python_files_no_python_files() {
+        let paths: Vec<String> = vec![
+            "README.md".to_string(),
+            "module.rs".to_string(),
+            "Cargo.toml".to_string(),
+        ];
+        let expected: Vec<String> = vec![];
+        let result: Vec<String> = filter_python_files(&paths);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_filter_python_files_all_python_files() {
+        let paths: Vec<String> = vec![
+            "script1.py".to_string(),
+            "script2.py".to_string(),
+            "script3.py".to_string(),
+        ];
+        let expected: Vec<String> = paths.clone();
+        let result: Vec<String> = filter_python_files(&paths);
+        assert_eq!(result, expected);
+    }
+}
