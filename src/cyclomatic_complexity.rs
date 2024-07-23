@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::path::Path;
 
 static PYTHON_KEYWORDS: &[&str] = &["if ", "for "];
 
@@ -18,7 +19,6 @@ pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
         // TODO: Skip comments
 
         if line.contains(&"def ") {
-            println!("{}", line);
             if curr_func != "" {
                 result.insert(curr_func, curr_comp);
             }
@@ -44,4 +44,11 @@ pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
     }
 
     result
+}
+
+pub fn print_result(path: &Path, result: &HashMap<&str, u8>) {
+    println!("{}", path.display());
+    for (func_name, complexity) in result.into_iter() {
+        println!("{}\t{}", complexity, func_name);
+    }
 }
