@@ -1,21 +1,19 @@
 use std::fs;
-use std::io;
 use std::path::{Path, PathBuf};
 
-pub fn get_all_paths_in_directory(dir: &Path) -> io::Result<Vec<PathBuf>> {
+pub fn get_all_paths_in_directory(dir: &Path) -> Vec<PathBuf> {
     let mut paths = Vec::new();
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
+    for entry in fs::read_dir(dir).unwrap() {
+        let path: PathBuf = entry.unwrap().path();
         if path.is_dir() {
             // Recursively add paths from subdirectories
-            let sub_paths = get_all_paths_in_directory(&path)?;
+            let sub_paths = get_all_paths_in_directory(&path);
             paths.extend(sub_paths);
         } else {
             paths.push(path.clone())
         }
     }
-    Ok(paths)
+    paths
 }
 
 pub fn filter_python_files(paths: &Vec<PathBuf>) -> Vec<PathBuf> {
