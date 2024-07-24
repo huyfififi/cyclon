@@ -1,3 +1,24 @@
+## Sample output
+
+```
+$ cargo run fixtures
+cyclon/fixtures/comment.py
+Found 1 functions.
+0	def a
+cyclon/fixtures/normal.py
+Found 3 functions.
+1	def a
+3	def c
+2	def b
+cyclon/fixtures/err_exceed_seven.py
+Found 2 functions.
+9	def is_even
+8	def is_odd
+cyclon/fixtures/nested.py
+Found 1 functions.
+4	def func
+```
+
 ## Run commands for development
 
 ```
