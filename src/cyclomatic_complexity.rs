@@ -11,6 +11,12 @@ fn extract_function_name(func: &String) -> &str {
     return v[0];
 }
 
+/*
+my first attempt to count cyclomatic complexity involves creating a struct
+to hold the current function name and its complexity.
+but I could not figure out how to implement the logic as I'm new to Rust.
+TODO: Implement the logic using a struct
+*/
 // nested functions will break this logic
 // only top-level functions are supported
 pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {

@@ -44,6 +44,7 @@ fn main() {
     if !path.is_dir() {
         let contents: Vec<String> = read_lines(&path);
         let result: HashMap<&str, u8> = count(&contents);
+        // TODO: Extract and clean the common operation
         let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
         let rel_path: PathBuf = get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
         print_result(&rel_path, &result);
