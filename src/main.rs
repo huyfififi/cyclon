@@ -1,6 +1,7 @@
 use std::collections::HashMap;
-use std::ffi::OsStr;
+use std::env;
 use std::path::PathBuf;
+use std::process::exit;
 
 use clap::Parser;
 
@@ -10,6 +11,7 @@ use cyclomatic_complexity::print_result;
 mod common;
 use common::filter_python_files;
 use common::get_all_paths_in_directory;
+// use common::get_common_directory;
 use common::read_lines;
 
 #[derive(Parser)]
@@ -24,26 +26,25 @@ struct Args {
 }
 
 fn main() {
-    let path: String = Args::parse().path;
-    let base_path = PathBuf::from(&path);
-    if base_path.is_file() {
-        let contents: Vec<String> = read_lines(&base_path);
+    let path: PathBuf = PathBuf::from(&Args::parse().path);
+    let _curr_path: PathBuf = env::current_dir().unwrap();
+
+    if !path.exists() {
+        println!("There is no such file or directory: {}", path.display());
+        exit(1);
+    }
+
+    if !path.is_dir() {
+        let contents: Vec<String> = read_lines(&path);
         let result: HashMap<&str, u8> = count(&contents);
-        print_result(
-            base_path
-                .file_name()
-                .unwrap_or(OsStr::new("invalid path"))
-                .to_str()
-                .unwrap_or("invalid str"),
-            &result,
-        );
+        print_result(&path, &result);
     } else {
-        let paths: Vec<PathBuf> = get_all_paths_in_directory(&base_path);
+        let paths: Vec<PathBuf> = get_all_paths_in_directory(&path);
         let python_files: Vec<PathBuf> = filter_python_files(&paths);
         for path in python_files {
             let contents: Vec<String> = read_lines(&path);
             let result: HashMap<&str, u8> = count(&contents);
-            print_result(path.file_name().unwrap().to_str().unwrap(), &result);
+            print_result(&path, &result);
         }
     }
 }

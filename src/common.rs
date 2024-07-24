@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub fn get_all_paths_in_directory(dir: &Path) -> Vec<PathBuf> {
+    println!("get_all_paths_in_directory: {}", dir.display());
     let mut paths = Vec::new();
     for entry in fs::read_dir(dir).unwrap() {
         let path: PathBuf = entry.unwrap().path();
@@ -27,25 +28,29 @@ pub fn filter_python_files(paths: &Vec<PathBuf>) -> Vec<PathBuf> {
     python_paths
 }
 
-pub fn read_lines(file: &PathBuf) -> Vec<String> {
+pub fn read_lines(path: &PathBuf) -> Vec<String> {
     let mut result = Vec::new();
 
-    for line in fs::read_to_string(file).unwrap().lines() {
+    for line in fs::read_to_string(path).unwrap().lines() {
         result.push(line.trim().to_string());
     }
 
     result
 }
 
-pub fn _get_relative_path(full_path: &Path, base_path: &Path) -> Result<PathBuf, String> {
-    match full_path.strip_prefix(base_path) {
-        Ok(relative_path) => Ok(relative_path.to_path_buf()),
-        Err(_) => Err(format!(
-            "'{}' is not a prefix of '{}'",
-            base_path.display(),
-            full_path.display()
-        )),
+pub fn get_common_directory(path1: &Path, path2: &Path) -> PathBuf {
+    let mut common_path = PathBuf::new();
+    let mut components1 = path1.components();
+    let mut components2 = path2.components();
+
+    loop {
+        match (components1.next(), components2.next()) {
+            (Some(comp1), Some(comp2)) if comp1 == comp2 => common_path.push(comp1),
+            _ => break,
+        }
     }
+
+    common_path
 }
 
 #[cfg(test)]
@@ -91,53 +96,38 @@ mod tests {
     }
 
     #[test]
-    fn test_relative_path_success() {
-        let base_path = PathBuf::from("/home/user/documents");
-        let full_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let expected = PathBuf::from("project/file.txt");
-        let result = _get_relative_path(&full_path, &base_path).unwrap();
+    fn test_common_directory() {
+        let path1 = PathBuf::from("/home/user/documents/project/file.txt");
+        let path2 = PathBuf::from("/home/user/documents/notes/notes.txt");
+        let expected = PathBuf::from("/home/user/documents");
+        let result = get_common_directory(&path1, &path2);
         assert_eq!(result, expected);
     }
 
     #[test]
-    fn test_relative_path_failure() {
-        let base_path = PathBuf::from("/home/user/docs");
-        let full_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let result = _get_relative_path(&full_path, &base_path);
-        assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "'/home/user/docs' is not a prefix of '/home/user/documents/project/file.txt'"
-        );
-    }
-
-    #[test]
-    fn test_relative_path_root() {
-        let base_path = PathBuf::from("/");
-        let full_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let expected = PathBuf::from("home/user/documents/project/file.txt");
-        let result = _get_relative_path(&full_path, &base_path).unwrap();
+    fn test_no_common_directory() {
+        let path1 = PathBuf::from("/home/user/documents/project/file.txt");
+        let path2 = PathBuf::from("/var/log/syslog");
+        let expected = PathBuf::from("/");
+        let result = get_common_directory(&path1, &path2);
         assert_eq!(result, expected);
     }
 
     #[test]
-    fn test_relative_path_same_path() {
-        let base_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let full_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let expected = PathBuf::from("");
-        let result = _get_relative_path(&full_path, &base_path).unwrap();
+    fn test_root_common_directory() {
+        let path1 = PathBuf::from("/home/user/documents/project/file.txt");
+        let path2 = PathBuf::from("/home/user/documents/project/file2.txt");
+        let expected = PathBuf::from("/home/user/documents/project");
+        let result = get_common_directory(&path1, &path2);
         assert_eq!(result, expected);
     }
 
     #[test]
-    fn test_relative_path_no_common_prefix() {
-        let base_path = PathBuf::from("/var/log");
-        let full_path = PathBuf::from("/home/user/documents/project/file.txt");
-        let result = _get_relative_path(&full_path, &base_path);
-        assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "'/var/log' is not a prefix of '/home/user/documents/project/file.txt'"
-        );
+    fn test_same_paths() {
+        let path1 = PathBuf::from("/home/user/documents/project/file.txt");
+        let path2 = PathBuf::from("/home/user/documents/project/file.txt");
+        let expected = PathBuf::from("/home/user/documents/project/file.txt");
+        let result = get_common_directory(&path1, &path2);
+        assert_eq!(result, expected);
     }
 }
