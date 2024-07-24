@@ -50,7 +50,10 @@ fn main() {
         for path in python_files {
             let contents: Vec<String> = read_lines(&path);
             let result: HashMap<&str, u8> = count(&contents);
-            print_result(&path, &result);
+            let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
+            let rel_path: PathBuf =
+                get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
+            print_result(&rel_path, &result);
         }
     }
 }

@@ -48,6 +48,7 @@ pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
 
 pub fn print_result(path: &PathBuf, result: &HashMap<&str, u8>) {
     println!("{}", path.display());
+    println!("Found {} functions.", result.len());
     for (func_name, complexity) in result.into_iter() {
         println!("{}\t{}", complexity, func_name);
     }
