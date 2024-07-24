@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use clap::Parser;
 
@@ -25,9 +25,9 @@ struct Args {
 
 fn main() {
     let path: String = Args::parse().path;
-    let base_path = Path::new(&path);
+    let base_path = PathBuf::from(&path);
     if base_path.is_file() {
-        let contents: Vec<String> = read_lines(path.clone());
+        let contents: Vec<String> = read_lines(&base_path);
         let result: HashMap<&str, u8> = count(&contents);
         print_result(
             base_path
@@ -41,7 +41,9 @@ fn main() {
         let paths: Vec<PathBuf> = get_all_paths_in_directory(&base_path);
         let python_files: Vec<PathBuf> = filter_python_files(&paths);
         for path in python_files {
-            println!("{}", path.display());
+            let contents: Vec<String> = read_lines(&path);
+            let result: HashMap<&str, u8> = count(&contents);
+            print_result(path.file_name().unwrap().to_str().unwrap(), &result);
         }
     }
 }
