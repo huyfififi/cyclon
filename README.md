@@ -1,4 +1,4 @@
-This command line tool counts Cyclomatic complexity of input files
+This command line tool counts cyclomatic complexity of Python files
 
 ## Sample output
 
