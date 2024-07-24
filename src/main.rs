@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::cmp;
 use std::env;
 use std::path::PathBuf;
 use std::process::exit;
@@ -23,7 +24,7 @@ use common::read_lines;
 struct Args {
     #[arg(index(1))]
     path: String,
-    // TODO: Add optiosn to show only problematic functions
+    // TODO: Add optiosn to show only functions with 7> complexity
 }
 
 // TODO: Handle errors correctly, maybe with std::io::Result
@@ -48,9 +49,14 @@ fn main() {
         let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
         let rel_path: PathBuf = get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
         print_result(&rel_path, &result);
+        if max_complexity(&result) > 7 {
+            println!("The complexity of some functions is greater than 7.");
+            exit(1);
+        }
     } else {
         let paths: Vec<PathBuf> = get_all_paths_in_directory(&path);
         let python_files: Vec<PathBuf> = filter_python_files(&paths);
+        let mut max: u8 = 0;
         for path in python_files {
             let contents: Vec<String> = read_lines(&path);
             let result: HashMap<&str, u8> = count(&contents);
@@ -58,6 +64,21 @@ fn main() {
             let rel_path: PathBuf =
                 get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
             print_result(&rel_path, &result);
+            max = cmp::max(max_complexity(&result), max);
+        }
+        if max > 7 {
+            println!("The complexity of some functions is greater than 7.");
+            exit(1);
         }
     }
+}
+
+fn max_complexity(result: &HashMap<&str, u8>) -> u8 {
+    let mut max: u8 = 0;
+    for complexity in result.values() {
+        if *complexity > max {
+            max = *complexity;
+        }
+    }
+    max
 }
