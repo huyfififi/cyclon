@@ -1,3 +1,5 @@
+This command line tool counts Cyclomatic complexity of input files
+
 ## Sample output
 
 ```
