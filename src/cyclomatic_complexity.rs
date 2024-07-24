@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-static PYTHON_KEYWORDS: &[&str] = &["if ", "for "];
+// ref: https://www.ibm.com/docs/en/raa/6.1?topic=metrics-cyclomatic-complexity
+// TODO: Correct this list of keywords used to count cyclomatic complexity
+// "if " matches both "if" and "elif"
+static PYTHON_KEYWORDS: &[&str] = &["if ", "for ", "case "];
 
 fn extract_function_name(func: &String) -> &str {
     let v: Vec<&str> = func.split("(").collect();
