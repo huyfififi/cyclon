@@ -25,7 +25,10 @@ pub fn count(contents: &Vec<String>) -> HashMap<&str, u8> {
     let mut curr_comp: u8 = 0;
 
     for line in contents {
-        // TODO: Skip comments
+        // TODO: skip multiline comments
+        if line.clone().trim().starts_with("#") {
+            continue; // skip comments
+        }
 
         if line.contains(&"def ") {
             if curr_func != "" {
