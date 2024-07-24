@@ -28,8 +28,11 @@ struct Args {
 
 // TODO: Handle errors correctly, maybe with std::io::Result
 fn main() {
-    let path: PathBuf = PathBuf::from(&Args::parse().path);
     let curr_dir: PathBuf = env::current_dir().unwrap();
+    let mut path: PathBuf = PathBuf::from(&Args::parse().path);
+    if !path.is_absolute() {
+        path = curr_dir.join(&path).to_path_buf();
+    }
 
     if !path.exists() {
         let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
