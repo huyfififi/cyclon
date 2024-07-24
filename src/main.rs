@@ -11,7 +11,8 @@ use cyclomatic_complexity::print_result;
 mod common;
 use common::filter_python_files;
 use common::get_all_paths_in_directory;
-// use common::get_common_directory;
+use common::get_common_directory;
+use common::get_relative_path;
 use common::read_lines;
 
 #[derive(Parser)]
@@ -25,19 +26,24 @@ struct Args {
     // TODO: Add optiosn to show only problematic functions
 }
 
+// TODO: Handle errors correctly, maybe with std::io::Result
 fn main() {
     let path: PathBuf = PathBuf::from(&Args::parse().path);
-    let _curr_path: PathBuf = env::current_dir().unwrap();
+    let curr_dir: PathBuf = env::current_dir().unwrap();
 
     if !path.exists() {
-        println!("There is no such file or directory: {}", path.display());
+        let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
+        let rel_path: PathBuf = get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
+        println!("There is no such file or directory: {}", rel_path.display());
         exit(1);
     }
 
     if !path.is_dir() {
         let contents: Vec<String> = read_lines(&path);
         let result: HashMap<&str, u8> = count(&contents);
-        print_result(&path, &result);
+        let common_dir: PathBuf = get_common_directory(&path, &curr_dir);
+        let rel_path: PathBuf = get_relative_path(&path, &common_dir.parent().unwrap()).unwrap();
+        print_result(&rel_path, &result);
     } else {
         let paths: Vec<PathBuf> = get_all_paths_in_directory(&path);
         let python_files: Vec<PathBuf> = filter_python_files(&paths);
