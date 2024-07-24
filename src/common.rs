@@ -1,8 +1,8 @@
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-pub fn get_all_paths_in_directory(dir: &Path) -> io::Result<Vec<String>> {
+pub fn get_all_paths_in_directory(dir: &Path) -> io::Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
@@ -12,22 +12,19 @@ pub fn get_all_paths_in_directory(dir: &Path) -> io::Result<Vec<String>> {
             let sub_paths = get_all_paths_in_directory(&path)?;
             paths.extend(sub_paths);
         } else {
-            // Convert the path to a String and add it to the list
-            if let Some(path_str) = path.to_str() {
-                paths.push(path_str.to_string());
-            }
+            paths.push(path.clone())
         }
     }
     Ok(paths)
 }
 
-pub fn filter_python_files(paths: &Vec<String>) -> Vec<String> {
+pub fn filter_python_files(paths: &Vec<PathBuf>) -> Vec<PathBuf> {
     let mut python_paths = Vec::new();
     for path in paths {
-        if !path.ends_with(&(".py")) {
+        if path.extension().and_then(|s| s.to_str()) != Some("py") {
             continue;
         }
-        python_paths.push(path.clone())
+        python_paths.push(path.clone());
     }
     python_paths
 }
@@ -45,44 +42,42 @@ pub fn read_lines(filename: String) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn test_filter_python_files() {
-        let paths: Vec<String> = vec![
-            "script.py".to_string(),
-            "README.md".to_string(),
-            "module.rs".to_string(),
-            "test.py".to_string(),
+        let paths = vec![
+            PathBuf::from("script.py"),
+            PathBuf::from("README.md"),
+            PathBuf::from("module.rs"),
+            PathBuf::from("test.py"),
         ];
-        let expected: Vec<String> = vec![
-            "script.py".to_string(),
-            "test.py".to_string(),
-        ];
-        let result: Vec<String> = filter_python_files(&paths);
+        let expected = vec![PathBuf::from("script.py"), PathBuf::from("test.py")];
+        let result = filter_python_files(&paths);
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_filter_python_files_no_python_files() {
-        let paths: Vec<String> = vec![
-            "README.md".to_string(),
-            "module.rs".to_string(),
-            "Cargo.toml".to_string(),
+        let paths = vec![
+            PathBuf::from("README.md"),
+            PathBuf::from("module.rs"),
+            PathBuf::from("Cargo.toml"),
         ];
-        let expected: Vec<String> = vec![];
-        let result: Vec<String> = filter_python_files(&paths);
+        let expected: Vec<PathBuf> = vec![];
+        let result = filter_python_files(&paths);
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_filter_python_files_all_python_files() {
-        let paths: Vec<String> = vec![
-            "script1.py".to_string(),
-            "script2.py".to_string(),
-            "script3.py".to_string(),
+        let paths = vec![
+            PathBuf::from("script1.py"),
+            PathBuf::from("script2.py"),
+            PathBuf::from("script3.py"),
         ];
-        let expected: Vec<String> = paths.clone();
-        let result: Vec<String> = filter_python_files(&paths);
+        let expected = paths.clone();
+        let result = filter_python_files(&paths);
         assert_eq!(result, expected);
     }
 }

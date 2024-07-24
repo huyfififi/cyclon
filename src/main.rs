@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
@@ -39,10 +39,10 @@ fn main() {
             &result,
         );
     } else {
-        let paths: io::Result<Vec<String>> = get_all_paths_in_directory(&base_path);
+        let paths: io::Result<Vec<PathBuf>> = get_all_paths_in_directory(&base_path);
         let python_files = filter_python_files(&paths.unwrap());
         for path in python_files {
-            println!("{}", path);
+            println!("{}", path.display());
         }
     }
 }
