@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::cmp;
+use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
 use std::process::exit;
