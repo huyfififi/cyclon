@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -16,7 +17,11 @@ pub fn get_all_paths_in_directory(dir: &Path) -> Vec<PathBuf> {
     paths
 }
 
-pub fn filter_python_files(paths: &Vec<PathBuf>) -> Vec<PathBuf> {
+pub fn filter_python_files(paths: &Vec<PathBuf>) -> Result<Vec<PathBuf>, Box<dyn Error>> {
+    if paths.is_empty() {
+        return Err("No paths provided".into());
+    }
+
     let mut python_paths = Vec::new();
     for path in paths {
         if path.extension().and_then(|s| s.to_str()) != Some("py") {
@@ -24,7 +29,7 @@ pub fn filter_python_files(paths: &Vec<PathBuf>) -> Vec<PathBuf> {
         }
         python_paths.push(path.clone());
     }
-    python_paths
+    Ok(python_paths)
 }
 
 pub fn read_lines(path: &PathBuf) -> Vec<String> {
@@ -76,9 +81,16 @@ mod tests {
             PathBuf::from("module.rs"),
             PathBuf::from("test.py"),
         ];
-        let expected = vec![PathBuf::from("script.py"), PathBuf::from("test.py")];
+        let expected: Result<Vec<PathBuf>, Box<dyn Error>> =
+            Ok(vec![PathBuf::from("script.py"), PathBuf::from("test.py")]);
         let result = filter_python_files(&paths);
-        assert_eq!(result, expected);
+        match (result, expected) {
+            (Ok(result_vec), Ok(expected_vec)) => assert_eq!(result_vec, expected_vec),
+            (Err(result_err), Err(expected_err)) => {
+                assert_eq!(result_err.to_string(), expected_err.to_string())
+            }
+            _ => panic!("Result and expected do not match"),
+        }
     }
 
     #[test]
@@ -88,9 +100,15 @@ mod tests {
             PathBuf::from("module.rs"),
             PathBuf::from("Cargo.toml"),
         ];
-        let expected: Vec<PathBuf> = vec![];
+        let expected: Result<Vec<PathBuf>, Box<dyn Error>> = Ok(vec![]);
         let result = filter_python_files(&paths);
-        assert_eq!(result, expected);
+        match (result, expected) {
+            (Ok(result_vec), Ok(expected_vec)) => assert_eq!(result_vec, expected_vec),
+            (Err(result_err), Err(expected_err)) => {
+                assert_eq!(result_err.to_string(), expected_err.to_string())
+            }
+            _ => panic!("Result and expected do not match"),
+        }
     }
 
     #[test]
@@ -100,9 +118,15 @@ mod tests {
             PathBuf::from("script2.py"),
             PathBuf::from("script3.py"),
         ];
-        let expected = paths.clone();
+        let expected: Result<Vec<PathBuf>, Box<dyn Error>> = Ok(paths.clone());
         let result = filter_python_files(&paths);
-        assert_eq!(result, expected);
+        match (result, expected) {
+            (Ok(result_vec), Ok(expected_vec)) => assert_eq!(result_vec, expected_vec),
+            (Err(result_err), Err(expected_err)) => {
+                assert_eq!(result_err.to_string(), expected_err.to_string())
+            }
+            _ => panic!("Result and expected do not match"),
+        }
     }
 
     #[test]
