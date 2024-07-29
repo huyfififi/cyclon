@@ -88,6 +88,14 @@ mod tests {
     }
 
     #[test]
+    fn test_filter_python_files_empty_paths() {
+        let paths: Vec<PathBuf> = vec![];
+        let expected: Result<Vec<PathBuf>, Box<dyn Error>> = Err("No paths provided".into());
+        let result = filter_python_files(&paths);
+        assert_result_eq(result, expected);
+    }
+
+    #[test]
     fn test_filter_python_files() {
         let paths = vec![
             PathBuf::from("script.py"),
