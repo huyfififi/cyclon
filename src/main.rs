@@ -28,6 +28,8 @@ struct Args {
 }
 
 // TODO: Handle errors correctly, maybe with std::io::Result
+// TODO: Update main() to return Result<(), Box<dyn std::error::Error>>
+//       to simplify error handling
 fn main() {
     let curr_dir: PathBuf = env::current_dir().unwrap();
     let mut path: PathBuf = PathBuf::from(&Args::parse().path);
@@ -55,7 +57,11 @@ fn main() {
         }
     } else {
         let paths: Vec<PathBuf> = get_all_paths_in_directory(&path);
-        let python_files: Vec<PathBuf> = filter_python_files(&paths);
+        // TODO: Use the ? operator to propagate errors and simplify the main code
+        let python_files: Vec<PathBuf> = filter_python_files(&paths).unwrap_or_else(|e| {
+            println!("An error occurred: {}", e);
+            vec![] // default value
+        });
         let mut max: u8 = 0;
         for path in python_files {
             let contents: Vec<String> = read_lines(&path);
